@@ -8,6 +8,7 @@ app = FastAPI()
 async def home():
     return "I'm Ready!"
 
+
 @app.get("/apps")
 async def get_apps():
     return [{
