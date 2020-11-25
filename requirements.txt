@@ -6,7 +6,6 @@ databases==0.4.1
 dnspython==2.0.0
 email-validator==1.1.2
 fastapi==0.61.2
-fastapi-users==3.0.7
 gunicorn==20.0.4
 h11==0.11.0
 idna==2.10

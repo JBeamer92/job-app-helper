@@ -35,6 +35,8 @@ class UserCreate(UserBase):
 
 
 # Used when reading/returning User
+# Inherits from UserBase, which also includes email
+#
 class User(UserBase):
     id: int
     is_active: bool
