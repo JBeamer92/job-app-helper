@@ -26,7 +26,6 @@ class Item(ItemBase):
 
 class UserBase(BaseModel):
     email: str
-    disabled: Optional[bool] = None
 
 
 # password is placed here and NOT in the UserBase so that when reading Users, passwords are not passed back
@@ -39,7 +38,7 @@ class UserCreate(UserBase):
 # Inherits from UserBase, which also includes email
 class User(UserBase):
     id: int
-    is_active: bool
+    disabled: bool
     items: List[Item]
 
     class Config:

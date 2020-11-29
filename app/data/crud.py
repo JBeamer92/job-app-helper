@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from . import models, schemas
+from app.data import models, schemas
 
 
 # TODO: Generate PyDocs for each method
