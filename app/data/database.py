@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # Eventually, I should add this to a config that loads in at runtime for prod/dev DBs.
-SQLALCHEMY_DATABASE_URL = 'sqlite:///./app.db'
+SQLALCHEMY_DATABASE_URL = 'sqlite:///./sql_app.db'
 
 # connect_args is only needed for SQL Lite. There's got to be a way to add this to configs as well.
 # see docs on why this param is needed for FastAPI: https://fastapi.tiangolo.com/tutorial/sql-databases/

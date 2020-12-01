@@ -31,7 +31,7 @@ def get_db():
 
 
 @app.get("/apps")
-async def get_apps():
+def get_apps():
     # TODO: require authentication
     # TODO: implement this method
     return [{
@@ -62,7 +62,7 @@ async def get_apps():
 
 
 @app.post("/apps")
-async def create_apps():
+def create_apps():
     # TODO: implement this method
     print('I created some apps!')
 
@@ -77,15 +77,15 @@ async def create_apps():
 
 
 @app.get("/items/")
-async def read_items(token: str = Depends(oauth2_scheme)):
+def read_items(token: str = Depends(oauth2_scheme)):
     return {"token": token}
 
 
 # USER MANAGEMENT
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    user = fake_decode_token(token)
+async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    user = fake_decode_token(token=token, db=db)
     if not user:
         raise HTTPException(status_code=401,
                             detail='Invalid authentication credentials',
@@ -99,8 +99,21 @@ async def get_current_active_user(current_user: schemas.User = Depends(get_curre
     return current_user
 
 
+@app.post('/users/', response_model=schemas.User)
+def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
+    db_user = crud.get_user_by_email(email=user.email, db=db)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already exists")
+    return crud.create_user(db=db, user=user)
+
+
+@app.get('/users/', response_model=List[schemas.User])
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    return crud.get_users(skip=skip, limit=limit, db=db)
+
+
 @app.get("/users/me")
-async def read_users_me(current_user: schemas.User = Depends(get_current_active_user)):
+def read_users_me(current_user: schemas.User = Depends(get_current_active_user)):
     return current_user
 
 
@@ -119,19 +132,6 @@ def create_item_for_user(
     return crud.create_item(db=db, item=item, user_id=user_id)
 
 
-@app.post('/users/', response_model=schemas.User)
-def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(email=user.email, db=db)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already exists")
-    return crud.create_user(db=db, user=user)
-
-
-@app.get('/users/', response_model=List[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud.get_users(skip=skip, limit=limit, db=db)
-
-
 # TOKEN MANAGEMENT
 
 
@@ -147,15 +147,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = 
     return {'access_token': db_user.email, 'token_type': 'bearer'}
 
 
-def get_user(username: str, db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(email=username, db=db)
-    if db_user:
-        return db_user
-
-
-def fake_decode_token(token, db: Session = Depends(get_db)):
+def fake_decode_token(token, db):
     # because right now, the token is the username (email), we can just pass the token in to get the user
-    user = get_user(db=db, username=token)
+    user = crud.get_user_by_email(db=db, email=token)
     return user
 
 
