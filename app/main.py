@@ -1,8 +1,10 @@
-import uvicorn
-from typing import List
-from fastapi import Depends, FastAPI, HTTPException
+from datetime import timedelta, datetime
+
+
+from typing import List, Optional
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from fastapi.logger import logger
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 import logging
@@ -14,6 +16,10 @@ from app.data.database import SessionLocal, engine
 models.Base.metadata.create_all(bind=engine)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+SECRET_KEY = "a68e0c8365ec2ec1c5502508920dc4ff55b5af71c0029ffdaa7c3cc810cc205e"
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRES_MINUTES = 30
 
 app = FastAPI()
 
@@ -53,7 +59,7 @@ def get_apps():
         "url": "www.sample.com",
         "status": "SENT"
     }, {
-        "id": 4 ,
+        "id": 4,
         "company": "Kindred",
         "position": "Programmer Analyst",
         "url": "www.sample.com",
@@ -85,11 +91,24 @@ def read_items(token: str = Depends(oauth2_scheme)):
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    user = fake_decode_token(token=token, db=db)
-    if not user:
-        raise HTTPException(status_code=401,
-                            detail='Invalid authentication credentials',
-                            headers={'WWW-Authenticate': 'Bearer'})
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        token_data = schemas.TokenData(email=email)
+    except JWTError:
+        raise credentials_exception
+
+    user = get_user(email=token_data.email, db=db)
+    if user is None:
+        raise credentials_exception
     return user
 
 
@@ -104,7 +123,8 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(email=user.email, db=db)
     if db_user:
         raise HTTPException(status_code=400, detail="Email already exists")
-    return crud.create_user(db=db, user=user)
+    hashed_pw = pwd_context.hash(user.password)
+    return crud.create_user(db=db, user=user, hashed_password=hashed_pw)
 
 
 @app.get('/users/', response_model=List[schemas.User])
@@ -117,12 +137,13 @@ def read_users_me(current_user: schemas.User = Depends(get_current_active_user))
     return current_user
 
 
-@app.get('/users/{user_id}', response_model=schemas.User)
-def get_user(user_id: int, db: Session = Depends(get_db)):
-    db_user = crud.get_user(db=db, user_id=user_id)
-    if db_user is None:
-        raise HTTPException(status_code=404, detail="User not found.")
-    return db_user
+# I may not need this method... Removing for now
+# @app.get('/users/{user_id}', response_model=schemas.User)
+# def get_user(user_id: int, db: Session = Depends(get_db)):
+#     db_user = crud.get_user(db=db, user_id=user_id)
+#     if db_user is None:
+#         raise HTTPException(status_code=404, detail="User not found.")
+#     return db_user
 
 
 @app.post("/users/{user_id}/items/", response_model=schemas.Item)
@@ -137,14 +158,49 @@ def create_item_for_user(
 
 @app.post('/token')
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    db_user = crud.get_user_by_email(db=db, email=form_data.username)
-    if db_user is None:
-        raise HTTPException(status_code=400, detail="Incorrect username or password.")
-    hashed_password = form_data.password + 'notsecureatallatm'  # TODO: Need to centralize and implement hashing
-    if not hashed_password == db_user.hashed_password:
-        raise HTTPException(status_code=400, detail="Incorrect username or password.")
+    db_user = authenticate_user(db=db, email=form_data.username, password=form_data.password)
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Incorrect username or password.",
+                            headers={'WWW-Authenticate': 'Bearer'})
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRES_MINUTES)
+    access_token = create_access_token(
+        data={'sub': db_user.email}, expires_delta=access_token_expires
+    )
 
-    return {'access_token': db_user.email, 'token_type': 'bearer'}
+    return {'access_token': access_token, 'token_type': 'bearer'}
+
+
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
+
+
+def get_user(email: str, db: Session):
+    return crud.get_user_by_email(db=db, email=email)
+
+
+def authenticate_user(email: str, password: str, db: Session):
+    user = get_user(email=email, db=db)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
 
 
 def fake_decode_token(token, db):

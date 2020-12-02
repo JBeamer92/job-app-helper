@@ -17,10 +17,10 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
 
 
-def create_user(db: Session, user: schemas.UserCreate):
+def create_user(db: Session, user: schemas.UserCreate, hashed_password: str):
     # TODO: need actual hashing to be implemented here
-    hashed_password = user.password + 'notsecureatallatm'
-    db_user = models.User(email=user.email, hashed_password=hashed_password)
+    hashed_pw= hashed_password
+    db_user = models.User(email=user.email, hashed_password=hashed_pw)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
