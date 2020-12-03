@@ -3,25 +3,39 @@ from datetime import timedelta, datetime
 
 from typing import List, Optional
 from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 import logging
 
+
 from app.data import crud, models, schemas
 from app.data.database import SessionLocal, engine
 
-
+# Init DB
 models.Base.metadata.create_all(bind=engine)
 
+# Security Stuff
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = "a68e0c8365ec2ec1c5502508920dc4ff55b5af71c0029ffdaa7c3cc810cc205e"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRES_MINUTES = 30
 
+# Build the darn thing
 app = FastAPI()
+
+# Allow CORS for communication with front-end
+origins = [
+    'http://localhost:8080'
+]
+
+app.add_middleware(
+    CORSMiddleware, allow_origins=origins, allow_credentials=True,
+    allow_methods=['*'], allow_headers=['*']
+)
 
 
 # Dependency, TODO: Should probably move this somewhere else
