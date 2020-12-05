@@ -51,7 +51,7 @@ def get_db():
 
 
 @app.get("/apps")
-def get_apps():
+def get_apps(token: str = Depends(oauth2_scheme)):
     # TODO: require authentication
     # TODO: implement this method
     return [{
