@@ -1,15 +1,13 @@
+import logging
 from datetime import timedelta, datetime
-
-
 from typing import List, Optional
+
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
-import logging
-
 
 from app.data import crud, models, schemas
 from app.data.database import SessionLocal, engine
@@ -45,46 +43,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-# APPLICATIONS
-
-
-@app.get("/apps")
-def get_apps(token: str = Depends(oauth2_scheme)):
-    # TODO: require authentication
-    # TODO: implement this method
-    return [{
-        "id": 1,
-        "company": "Anthem",
-        "position": "Developer",
-        "url": "www.sample.com",
-        "status": "SENT"
-    }, {
-        "id": 2,
-        "company": "Kindred",
-        "position": "Programmer Analyst",
-        "url": "www.sample.com",
-        "status": "SENT"
-    }, {
-        "id": 3,
-        "company": "Fusion",
-        "position": "Programmer Analyst",
-        "url": "www.sample.com",
-        "status": "SENT"
-    }, {
-        "id": 4,
-        "company": "Kindred",
-        "position": "Programmer Analyst",
-        "url": "www.sample.com",
-        "status": "SENT"
-    }]
-
-
-@app.post("/apps")
-def create_apps():
-    # TODO: implement this method
-    print('I created some apps!')
 
 
 # ITEMS
@@ -206,6 +164,48 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+# APPLICATIONS
+
+
+@app.get("/apps")
+def get_apps(token: str = Depends(oauth2_scheme)):
+    # TODO: require authentication
+    # TODO: implement this method
+    return [{
+        "id": 1,
+        "company": "Anthem",
+        "position": "Developer",
+        "url": "www.sample.com",
+        "status": "SENT"
+    }, {
+        "id": 2,
+        "company": "Kindred",
+        "position": "Programmer Analyst",
+        "url": "www.sample.com",
+        "status": "SENT"
+    }, {
+        "id": 3,
+        "company": "Fusion",
+        "position": "Programmer Analyst",
+        "url": "www.sample.com",
+        "status": "SENT"
+    }, {
+        "id": 4,
+        "company": "Kindred",
+        "position": "Programmer Analyst",
+        "url": "www.sample.com",
+        "status": "SENT"
+    }]
+
+
+@app.post("/apps", response_model=schemas.Application)
+async def create_apps(current_user: models.User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+    # TODO: implement this method
+    if current_user:
+        new_app = models.Application(position='Developer', company='Company A')
+        return crud.create_application(db=db, application=new_app, user_id=current_user.id)
 
 
 if __name__ == '__main__':

@@ -24,6 +24,24 @@ class Item(ItemBase):
         orm_mode = True
 
 
+# APPLICATIONS
+class ApplicationBase(BaseModel):
+    position: str
+    company: str
+
+
+class ApplicationCreate(ApplicationBase):
+    pass
+
+
+class Application(ApplicationBase):
+    id: int
+    owner_id: int
+
+    class Config:
+        orm_mode = True
+
+
 class UserBase(BaseModel):
     email: str
 
@@ -40,6 +58,7 @@ class User(UserBase):
     id: int
     disabled: bool
     items: List[Item] = []
+    applications: List[Application] = []
 
     class Config:
         orm_mode = True

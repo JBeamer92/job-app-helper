@@ -13,6 +13,7 @@ class User(Base):
     disabled = Column(Boolean, default=False)
 
     items = relationship("Item", back_populates="owner")
+    applications = relationship("Application", back_populates="owner")
 
 
 class Item(Base):
@@ -24,3 +25,14 @@ class Item(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="items")
+
+
+class Application(Base):
+    __tablename__ = "applications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    position = Column(String, index=True)
+    company = Column(String, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+
+    owner = relationship("User", back_populates="applications")

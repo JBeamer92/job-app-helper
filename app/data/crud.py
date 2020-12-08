@@ -31,6 +31,14 @@ def get_items(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Item).offset(skip).limit(limit).all()
 
 
+def create_application(db: Session, application: schemas.ApplicationCreate, user_id: int):
+    db_app = models.Application(position=application.position, company=application.company, owner_id=user_id)
+    db.add(db_app)
+    db.commit()
+    db.refresh(db_app)
+    return db_app
+
+
 def create_item(db: Session, item: schemas.ItemCreate, user_id: int):
     """
     :param db: Session
