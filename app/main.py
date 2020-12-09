@@ -45,20 +45,6 @@ def get_db():
         db.close()
 
 
-# ITEMS
-
-
-# @app.get("/items/", response_model=List[schemas.Item])
-# def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-#     items = crud.get_items(db, skip=skip, limit=limit)
-#     return items
-
-
-@app.get("/items/")
-def read_items(token: str = Depends(oauth2_scheme)):
-    return {"token": token}
-
-
 # USER MANAGEMENT
 
 
@@ -99,21 +85,9 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user, hashed_password=hashed_pw)
 
 
-@app.get('/users/', response_model=List[schemas.User])
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return crud.get_users(skip=skip, limit=limit, db=db)
-
-
 @app.get("/users/me", response_model=schemas.User)
 def read_users_me(current_user: schemas.User = Depends(get_current_active_user)):
     return current_user
-
-
-@app.post("/users/{user_id}/items/", response_model=schemas.Item)
-def create_item_for_user(
-    user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
-):
-    return crud.create_item(db=db, item=item, user_id=user_id)
 
 
 # TOKEN MANAGEMENT
@@ -170,13 +144,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 @app.get("/apps", response_model=List[schemas.Application])
-def get_apps(
-        current_user: models.User = Depends(get_current_active_user),
-        db: Session = Depends(get_db)):
+async def get_apps(
+        current_user: models.User = Depends(get_current_active_user)):
     if current_user:
         return current_user.applications
 
 
+# TODO: Change to 'save apps', accept list of apps, update/create/?delete? as appropriate
 @app.post("/apps", response_model=schemas.Application)
 async def create_apps(
         application: schemas.ApplicationCreate,
