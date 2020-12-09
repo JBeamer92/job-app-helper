@@ -169,42 +169,21 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 # APPLICATIONS
 
 
-@app.get("/apps")
-def get_apps(token: str = Depends(oauth2_scheme)):
-    # TODO: require authentication
-    # TODO: implement this method
-    return [{
-        "id": 1,
-        "company": "Anthem",
-        "position": "Developer",
-        "url": "www.sample.com",
-        "status": "SENT"
-    }, {
-        "id": 2,
-        "company": "Kindred",
-        "position": "Programmer Analyst",
-        "url": "www.sample.com",
-        "status": "SENT"
-    }, {
-        "id": 3,
-        "company": "Fusion",
-        "position": "Programmer Analyst",
-        "url": "www.sample.com",
-        "status": "SENT"
-    }, {
-        "id": 4,
-        "company": "Kindred",
-        "position": "Programmer Analyst",
-        "url": "www.sample.com",
-        "status": "SENT"
-    }]
+@app.get("/apps", response_model=schemas.Application)
+def get_apps(
+        current_user: models.User = Depends(get_current_active_user),
+        db: Session = Depends(get_db)):
+    if current_user:
+        return current_user.applications
 
 
 @app.post("/apps", response_model=schemas.Application)
-async def create_apps(current_user: models.User = Depends(get_current_active_user), db: Session = Depends(get_db)):
-    # TODO: implement this method
+async def create_apps(
+        application: schemas.ApplicationCreate,
+        current_user: models.User = Depends(get_current_active_user),
+        db: Session = Depends(get_db)):
     if current_user:
-        new_app = models.Application(position='Developer', company='Company A')
+        new_app = models.Application(position=application.position, company=application.company)
         return crud.create_application(db=db, application=new_app, user_id=current_user.id)
 
 
