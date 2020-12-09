@@ -169,7 +169,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 # APPLICATIONS
 
 
-@app.get("/apps", response_model=schemas.Application)
+@app.get("/apps", response_model=List[schemas.Application])
 def get_apps(
         current_user: models.User = Depends(get_current_active_user),
         db: Session = Depends(get_db)):
