@@ -152,7 +152,7 @@ async def get_apps(
 
 # TODO: Change to 'save apps', accept list of apps, update/create/?delete? as appropriate
 @app.post("/apps", response_model=schemas.Application)
-async def create_apps(
+async def create_app(
         application: schemas.ApplicationCreate,
         current_user: models.User = Depends(get_current_active_user),
         db: Session = Depends(get_db)):
