@@ -3,12 +3,32 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
+# EVENTS
+
+class EventBase(BaseModel):
+    name: str
+    date: str
+
+
+class EventCreate(EventBase):
+    pass
+
+
+class Event(EventBase):
+    id: int
+    posting_id: int
+
+    class Config:
+        orm_mode = True
+
+
 # POSTINGS
 
 class PostingBase(BaseModel):
     position: str
     company: str
     url: Optional[str] = None
+    events: List[Event] = []
 
 
 class PostingCreate(PostingBase):

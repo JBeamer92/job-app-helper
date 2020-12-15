@@ -16,7 +16,8 @@ def create_user(db: Session, user: schemas.UserCreate, hashed_password: str):
 
 
 def add_posting(db: Session, posting: schemas.PostingCreate, user_id: int):
-    new_posting = models.Posting(position=posting.position, company=posting.company, url=posting.url, owner_id=user_id)
+    new_posting = models.Posting(position=posting.position, company=posting.company, url=posting.url,
+                                 events=posting.events, owner_id=user_id)
     db.add(new_posting)
     db.commit()
     db.refresh(new_posting)
