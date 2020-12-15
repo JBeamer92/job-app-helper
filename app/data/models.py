@@ -21,6 +21,7 @@ class Posting(Base):
     id = Column(Integer, primary_key=True, index=True)
     position = Column(String, index=True)
     company = Column(String, index=True)
+    url = Column(String, index=False, nullable=True)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     owner = relationship("User", back_populates="postings")

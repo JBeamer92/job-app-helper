@@ -156,7 +156,7 @@ async def add_posting(
         current_user: models.User = Depends(get_current_active_user),
         db: Session = Depends(get_db)):
     if current_user:
-        new_posting = models.Posting(position=posting.position, company=posting.company)
+        new_posting = models.Posting(position=posting.position, company=posting.company, url=posting.url)
         return crud.add_posting(db=db, posting=new_posting, user_id=current_user.id)
 
 

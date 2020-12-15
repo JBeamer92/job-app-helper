@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class PostingBase(BaseModel):
     position: str
     company: str
+    url: Optional[str] = None
 
 
 class PostingCreate(PostingBase):
