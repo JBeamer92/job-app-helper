@@ -3,9 +3,6 @@ from sqlalchemy.orm import Session
 from app.data import models, schemas
 
 
-# TODO: Generate PyDocs for each method
-
-
 def get_user_by_email(db: Session, email: str):
     return db.query(models.User).filter(models.User.email == email).first()
 
@@ -18,10 +15,10 @@ def create_user(db: Session, user: schemas.UserCreate, hashed_password: str):
     return db_user
 
 
-def create_application(db: Session, application: schemas.ApplicationCreate, user_id: int):
-    db_app = models.Application(position=application.position, company=application.company, owner_id=user_id)
-    db.add(db_app)
+def add_posting(db: Session, posting: schemas.PostingCreate, user_id: int):
+    new_posting = models.Posting(position=posting.position, company=posting.company, owner_id=user_id)
+    db.add(new_posting)
     db.commit()
-    db.refresh(db_app)
-    return db_app
+    db.refresh(new_posting)
+    return new_posting
 

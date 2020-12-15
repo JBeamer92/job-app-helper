@@ -3,18 +3,18 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
-# APPLICATIONS
+# POSTINGS
 
-class ApplicationBase(BaseModel):
+class PostingBase(BaseModel):
     position: str
     company: str
 
 
-class ApplicationCreate(ApplicationBase):
+class PostingCreate(PostingBase):
     pass
 
 
-class Application(ApplicationBase):
+class Posting(PostingBase):
     id: int
     owner_id: int
 
@@ -36,7 +36,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     disabled: bool
-    applications: List[Application] = []
+    postings: List[Posting] = []
 
     class Config:
         orm_mode = True

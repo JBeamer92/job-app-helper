@@ -140,25 +140,24 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-# APPLICATIONS
+# POSTINGS
 
 
-@app.get("/apps", response_model=List[schemas.Application])
-async def get_apps(
+@app.get("/postings", response_model=List[schemas.Posting])
+async def get_postings(
         current_user: models.User = Depends(get_current_active_user)):
     if current_user:
-        return current_user.applications
+        return current_user.postings
 
 
-# TODO: Change to 'save apps', accept list of apps, update/create/?delete? as appropriate
-@app.post("/apps", response_model=schemas.Application)
-async def create_app(
-        application: schemas.ApplicationCreate,
+@app.post("/postings", response_model=schemas.Posting)
+async def add_posting(
+        posting: schemas.PostingCreate,
         current_user: models.User = Depends(get_current_active_user),
         db: Session = Depends(get_db)):
     if current_user:
-        new_app = models.Application(position=application.position, company=application.company)
-        return crud.create_application(db=db, application=new_app, user_id=current_user.id)
+        new_posting = models.Posting(position=posting.position, company=posting.company)
+        return crud.add_posting(db=db, posting=new_posting, user_id=current_user.id)
 
 
 if __name__ == '__main__':
