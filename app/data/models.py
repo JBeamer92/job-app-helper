@@ -37,4 +37,4 @@ class Event(Base):
     date = Column(String, index=True)
     posting_id = Column(Integer, ForeignKey('postings.id'))
 
-    posting = relationship('Posting', 'events')
+    posting = relationship('Posting', back_populates='events')

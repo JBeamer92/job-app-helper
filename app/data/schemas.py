@@ -28,16 +28,17 @@ class PostingBase(BaseModel):
     position: str
     company: str
     url: Optional[str] = None
-    events: List[Event] = []
 
 
 class PostingCreate(PostingBase):
+    events: Optional[List[EventCreate]] = []
     pass
 
 
 class Posting(PostingBase):
     id: int
     owner_id: int
+    events: List[Event] = []
 
     class Config:
         orm_mode = True
