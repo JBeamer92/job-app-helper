@@ -31,14 +31,14 @@ class PostingBase(BaseModel):
 
 
 class PostingCreate(PostingBase):
-    events: Optional[List[EventCreate]] = []
+    events: Optional[List[EventCreate]] = None
     pass
 
 
 class Posting(PostingBase):
     id: int
     owner_id: int
-    events: List[Event] = []
+    events: List[Event] = None
 
     class Config:
         orm_mode = True
