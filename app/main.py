@@ -165,6 +165,16 @@ async def add_posting(
         return crud.add_posting(db=db, posting=new_posting, user_id=current_user.id)
 
 
+@app.delete("/postings/{posting_id}")
+async def delete_posting(posting_id: int):
+    return {"message": f"Deleting posting with ID:  {posting_id}"}
+
+
+@app.put("/postings/{posting_id}")
+async def update_posting(posting_id: int):
+    return {"message": f"Updating posting with ID:  {posting_id}"}
+
+
 if __name__ == '__main__':
     import uvicorn
     logging.basicConfig(level=logging.DEBUG)
