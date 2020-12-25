@@ -166,13 +166,15 @@ async def add_posting(
 
 
 @app.delete("/postings/{posting_id}")
-async def delete_posting(posting_id: int):
-    return {"message": f"Deleting posting with ID:  {posting_id}"}
+async def delete_posting(posting_id: int, current_user: models.User = Depends(get_current_active_user)):
+    if current_user:
+        return {"message": f"Deleting posting with ID:  {posting_id}"}
 
 
 @app.put("/postings/{posting_id}")
-async def update_posting(posting_id: int):
-    return {"message": f"Updating posting with ID:  {posting_id}"}
+async def update_posting(posting_id: int, current_user: models.User = Depends(get_current_active_user)):
+    if current_user:
+        return {"message": f"Updating posting with ID:  {posting_id}"}
 
 
 if __name__ == '__main__':
