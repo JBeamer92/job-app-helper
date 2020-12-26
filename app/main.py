@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from app.data import crud, models, schemas
 from app.data.database import SessionLocal, engine
 
-# Init DB
+# Initialize DB
 models.Base.metadata.create_all(bind=engine)
 
 # Security Stuff
@@ -140,7 +140,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     return encoded_jwt
 
 
-# POSTINGS
+# POSTING MANAGEMENT
 
 
 @app.get("/postings", response_model=List[schemas.Posting])
@@ -166,8 +166,10 @@ async def add_posting(
 
 
 @app.delete("/postings/{posting_id}")
-async def delete_posting(posting_id: int, current_user: models.User = Depends(get_current_active_user)):
+async def delete_posting(posting_id: int, current_user: models.User = Depends(get_current_active_user),
+                         db: Session = Depends(get_db)):
     if current_user:
+        crud.delete_posting(posting_id=posting_id, db=db)
         return {"message": f"Deleting posting with ID:  {posting_id}"}
 
 

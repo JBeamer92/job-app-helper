@@ -26,7 +26,7 @@ class Posting(Base):
     url = Column(String, index=False, nullable=True)
 
     owner = relationship('User', back_populates='postings')
-    events = relationship('Event', back_populates='posting')
+    events = relationship('Event', back_populates='posting', cascade='all, delete, delete-orphan')
 
 
 class Event(Base):
@@ -37,4 +37,4 @@ class Event(Base):
     date = Column(String, index=True)
     posting_id = Column(Integer, ForeignKey('postings.id'))
 
-    posting = relationship('Posting', back_populates='events')
+    posting = relationship('Posting', back_populates='events', cascade='all, delete')

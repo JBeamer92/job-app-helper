@@ -23,3 +23,10 @@ def add_posting(db: Session, posting: schemas.PostingCreate, user_id: int):
     db.refresh(new_posting)
     return new_posting
 
+
+def delete_posting(db: Session, posting_id: int):
+    posting = db.query(models.Posting).filter(models.Posting.id == posting_id).first()
+    db.delete(posting)
+    db.commit()
+    # db.refresh()  # TODO: Do I need to refresh the user here?
+    return posting_id
