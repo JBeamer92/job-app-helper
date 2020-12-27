@@ -30,3 +30,19 @@ def delete_posting(db: Session, posting_id: int):
     db.commit()
     # db.refresh()  # TODO: Do I need to refresh the user here?
     return posting_id
+
+
+def get_posting_by_id(db: Session, posting_id: int):
+    return db.query(models.Posting).filter(models.Posting.id == posting_id).first()
+
+
+def update_posting(db: Session, posting: schemas.Posting):
+    db.query(models.Posting).filter(models.Posting.id == posting.id).update({
+        models.Posting.position: posting.position,
+        models.Posting.company: posting.company,
+        models.Posting.url: posting.url
+    })
+    db.commit()
+    db.refresh(posting)
+    return posting
+

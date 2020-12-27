@@ -173,10 +173,16 @@ async def delete_posting(posting_id: int, current_user: models.User = Depends(ge
         return {"message": f"Deleting posting with ID:  {posting_id}"}
 
 
-@app.put("/postings/{posting_id}")
-async def update_posting(posting_id: int, current_user: models.User = Depends(get_current_active_user)):
+@app.put("/postings")
+async def update_posting(posting: schemas.PostingUpdate, current_user: models.User = Depends(get_current_active_user),
+                         db: Session = Depends(get_db)):
     if current_user:
-        return {"message": f"Updating posting with ID:  {posting_id}"}
+        db_post = crud.get_posting_by_id(db=db, posting_id=posting.id)
+        db_post.position = posting.position
+        db_post.company = posting.company
+        db_post.url = posting.url
+        crud.update_posting(posting=db_post, db=db)
+        return {"message": f"Updating posting with ID:  {posting.id}"}
 
 
 if __name__ == '__main__':

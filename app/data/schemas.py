@@ -32,7 +32,10 @@ class PostingBase(BaseModel):
 
 class PostingCreate(PostingBase):
     events: Optional[List[EventCreate]] = None
-    pass
+
+
+class PostingUpdate(PostingCreate):
+    id: int
 
 
 class Posting(PostingBase):
