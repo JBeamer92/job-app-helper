@@ -9,8 +9,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from app.data import crud, models, schemas
-from app.data.database import SessionLocal, engine
+from data import crud, models, schemas
+from data.database import SessionLocal, engine
 
 # Initialize DB
 models.Base.metadata.create_all(bind=engine)
@@ -188,4 +188,4 @@ async def update_posting(posting: schemas.PostingUpdate, current_user: models.Us
 if __name__ == '__main__':
     import uvicorn
     logging.basicConfig(level=logging.DEBUG)
-    uvicorn.run('app.main:app', host='0.0.0.0', port=8000, log_config=None)
+    uvicorn.run('main:app', host='0.0.0.0', port=8000, log_config=None)

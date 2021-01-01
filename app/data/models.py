@@ -1,8 +1,8 @@
 from datetime import datetime
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Date
 from sqlalchemy.orm import relationship
 
-from app.data.database import Base
+from data.database import Base
 
 
 class User(Base):
@@ -34,7 +34,7 @@ class Event(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    date = Column(String, index=True)
+    date = Column(Date, index=True)
     posting_id = Column(Integer, ForeignKey('postings.id'))
 
     posting = relationship('Posting', back_populates='events', cascade='all, delete')

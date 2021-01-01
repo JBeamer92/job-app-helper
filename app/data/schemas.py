@@ -1,5 +1,7 @@
 from typing import List, Optional
 
+from datetime import date
+
 from pydantic import BaseModel
 
 
@@ -7,7 +9,7 @@ from pydantic import BaseModel
 
 class EventBase(BaseModel):
     name: str
-    date: str
+    date: date
 
 
 class EventCreate(EventBase):
