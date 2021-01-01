@@ -33,7 +33,8 @@ class PostingBase(BaseModel):
 
 
 class PostingCreate(PostingBase):
-    events: Optional[List[EventCreate]] = None
+    # events: Optional[List[EventCreate]] = None
+    pass
 
 
 class PostingUpdate(PostingCreate):
@@ -43,7 +44,7 @@ class PostingUpdate(PostingCreate):
 class Posting(PostingBase):
     id: int
     owner_id: int
-    events: List[Event] = None
+    # events: List[Event] = None
 
     class Config:
         orm_mode = True

@@ -157,10 +157,10 @@ async def add_posting(
         db: Session = Depends(get_db)):
     if current_user:
         new_posting = models.Posting(position=posting.position, company=posting.company, url=posting.url)
-        events_list = []
-        for event in posting.events:
-            events_list.append(models.Event(name=event.name, date=event.date))
-        new_posting.events = events_list
+        # events_list = []
+        # for event in posting.events:
+        #     events_list.append(models.Event(name=event.name, date=event.date))
+        # new_posting.events = events_list
 
         return crud.add_posting(db=db, posting=new_posting, user_id=current_user.id)
 
