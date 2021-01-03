@@ -34,38 +34,26 @@ class PositionCreate(PositionBase):
     pass
 
 
-class PositionUpdate(PositionBase):
-    id: int
-
-
-class Position(PositionBase):
-    id: int
-
-    class Config:
-        orm_mode = True
-
-
 # POSTINGS
 
 class PostingBase(BaseModel):
+    position: str
     company: str
     url: Optional[str] = None
 
 
 class PostingCreate(PostingBase):
-    position: PositionCreate
     # events: Optional[List[EventCreate]] = None
+    pass
 
 
 class PostingUpdate(PostingCreate):
     id: int
-    position = PositionUpdate
 
 
 class Posting(PostingBase):
     id: int
     owner_id: int
-    position: Position
     # events: List[Event] = None
 
     class Config:
