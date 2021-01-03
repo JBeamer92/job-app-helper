@@ -151,12 +151,16 @@ async def get_postings(
 
 
 @app.post("/postings", response_model=schemas.Posting)
-async def add_posting(
+async def create_posting(
         posting: schemas.PostingCreate,
         current_user: models.User = Depends(get_current_active_user),
         db: Session = Depends(get_db)):
     if current_user:
-        new_posting = models.Posting(position=posting.position, company=posting.company, url=posting.url)
+        # TODO: Do I need to check if position already exists here?
+        position = models.Position(name=posting.position.name)
+        new_posting = models.Posting(position=position,
+                                     company=posting.company,
+                                     url=posting.url)
         # events_list = []
         # for event in posting.events:
         #     events_list.append(models.Event(name=event.name, date=event.date))
@@ -173,11 +177,12 @@ async def delete_posting(posting_id: int, current_user: models.User = Depends(ge
         return {"message": f"Deleting posting with ID:  {posting_id}"}
 
 
-@app.put("/postings")
-async def update_posting(posting: schemas.PostingUpdate, current_user: models.User = Depends(get_current_active_user),
+@app.put("/postings/{posting_id}")
+async def update_posting(posting_id: int, posting: schemas.PostingUpdate,
+                         current_user: models.User = Depends(get_current_active_user),
                          db: Session = Depends(get_db)):
     if current_user:
-        db_post = crud.get_posting_by_id(db=db, posting_id=posting.id)
+        db_post = crud.get_posting_by_id(db=db, posting_id=posting_id)
         db_post.position = posting.position
         db_post.company = posting.company
         db_post.url = posting.url

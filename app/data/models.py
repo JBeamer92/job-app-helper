@@ -21,12 +21,22 @@ class Posting(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey('users.id'))
-    position = Column(String, index=True)
+    position_id = Column(Integer, ForeignKey('positions.id'))
     company = Column(String, index=True)
     url = Column(String, index=False, nullable=True)
 
     owner = relationship('User', back_populates='postings')
+    position = relationship('Position', back_populates='posting')
     events = relationship('Event', back_populates='posting', cascade='all, delete, delete-orphan')
+
+
+class Position(Base):
+    __tablename__ = 'positions'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), index=True, unique=True)
+
+    posting = relationship('Posting', back_populates='position')
 
 
 class Event(Base):
